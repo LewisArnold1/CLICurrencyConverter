@@ -3,15 +3,16 @@
 import logging
 
 
-def get_logger(name: str) -> logging.Logger:
+def get_logger(name: str, log_file: str = "currency_converter.log") -> logging.Logger:
     """
     Create and return a configured logger.
 
     Args:
         name (str): Name of logger.
+        log_file (str): Path to the log file. Defaults to 'currency_converter.log'.
 
     Returns:
-        logging.Logger: A logger instance with a StreamHandler.
+        logging.Logger: A logger instance with a StreamHandler and a FileHandler.
     """
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
@@ -19,13 +20,22 @@ def get_logger(name: str) -> logging.Logger:
     # Prevent adding duplicate handlers if get_logger is called multiple times
     if not logger.handlers:
         stream_handler = logging.StreamHandler()
-        stream_handler.setLevel(logging.DEBUG)
+        stream_handler.setLevel(logging.INFO)
 
-        formatter = logging.Formatter(
+        stream_formatter = logging.Formatter(
             "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         )
-        stream_handler.setFormatter(formatter)
+        stream_handler.setFormatter(stream_formatter)
+
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(logging.DEBUG)
+
+        file_formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(module)s - %(message)s"
+        )
+        file_handler.setFormatter(file_formatter)
 
         logger.addHandler(stream_handler)
+        logger.addHandler(file_handler)
 
     return logger
