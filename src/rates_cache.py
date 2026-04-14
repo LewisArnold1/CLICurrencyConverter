@@ -32,3 +32,19 @@ def load_rates(file_path: str = RATES_FILE) -> dict:
 
     logger.info("Successfully loaded rates dated %s", data.get("date", "unknown"))
     return data
+
+
+def save_rates(data: dict, file_path: str = RATES_FILE) -> None:
+    """
+    Save exchange rate data to a JSON file.
+
+    Args:
+        data (dict): The exchange rate data to save.
+        file_path (str): Path to the output file. Defaults to data/last_rates.json.
+    """
+    logger.debug("Saving rates to %s", file_path)
+
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4)
+
+    logger.info("Successfully saved rates dated %s", data.get("date", "unknown"))
