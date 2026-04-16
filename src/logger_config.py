@@ -2,47 +2,53 @@
 
 import logging
 
+# Suppress verbose third-party DEBUG logs
+logging.getLogger("urllib3").setLevel(logging.WARNING)
+logging.getLogger("requests").setLevel(logging.WARNING)
 
-def get_logger(
-    name: str,
+def configure_logging(
     log_file: str = "currency_converter.log",
     console_level: str = "INFO",
     file_level: str = "DEBUG",
-) -> logging.Logger:
+) -> None:
     """
-    Create and return a configured logger.
+    Configure the root logger. Should be called once at application startup.
 
     Args:
-        name (str): Name of logger.
-        log_file (str): Path to the log file. Defaults to 'currency_converter.log'.
-        console_level (str): Logging level for console output. Defaults to 'INFO'.
-        file_level (str): Logging level for file output. Defaults to 'DEBUG'.
+        log_file (str): Path to the log file.
+        console_level (str): Console handler level.
+        file_level (str): File handler level.
+    """
+    root_logger = logging.getLogger()
+    root_logger.setLevel("DEBUG")
+
+    # Clear any existing handlers
+    root_logger.handlers.clear()
+
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(console_level.upper())
+    stream_handler.setFormatter(
+        logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    )
+
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(file_level.upper())
+    file_handler.setFormatter(
+        logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(module)s - %(message)s")
+    )
+
+    root_logger.addHandler(stream_handler)
+    root_logger.addHandler(file_handler)
+
+
+def get_logger(name: str) -> logging.Logger:
+    """
+    Get a logger for the given name. Inherits config from root logger.
+
+    Args:
+        name (str): Name of the logger, typically __name__.
 
     Returns:
-        logging.Logger: A logger instance with a StreamHandler and a FileHandler.
+        logging.Logger: A logger instance.
     """
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
-
-    # Prevent adding duplicate handlers if get_logger is called multiple times
-    if not logger.handlers:
-        stream_handler = logging.StreamHandler()
-        stream_handler.setLevel(console_level.upper())
-
-        stream_formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
-        stream_handler.setFormatter(stream_formatter)
-
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(file_level.upper())
-
-        file_formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(module)s - %(message)s"
-        )
-        file_handler.setFormatter(file_formatter)
-
-        logger.addHandler(stream_handler)
-        logger.addHandler(file_handler)
-
-    return logger
+    return logging.getLogger(name)

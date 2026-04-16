@@ -1,61 +1,86 @@
 """Tests for the logger configuration module."""
 
 import logging
-from src.logger_config import get_logger
+import pytest
+
+from src.logger_config import configure_logging, get_logger
 
 
-def test_get_logger_returns_logger_instance():
-    """Test that get_logger returns a logging.Logger object."""
-    logger = get_logger("test_instance")
-    
-    assert isinstance(logger, logging.Logger)
+@pytest.fixture(autouse=True)
+def reset_root_logger():
+    """Reset the root logger before each test."""
+    root = logging.getLogger()
+    root.handlers.clear()
+    yield
+    root.handlers.clear()
 
 
-def test_get_logger_has_two_handlers():
-    """Test that the logger has both a StreamHandler and a FileHandler."""
-    logger = get_logger("test_handlers")
+def test_configure_logging_sets_two_handlers(tmp_path):
+    """Test that configure_logging adds a StreamHandler and FileHandler."""
+    log_file = tmp_path / "test.log"
 
-    assert len(logger.handlers) == 2
+    configure_logging(log_file=str(log_file))
+
+    root = logging.getLogger()
+    assert len(root.handlers) == 2
 
 
-def test_get_logger_handler_types():
-    """Test that the logger has the correct handler types."""
-    logger = get_logger("test_handler_types")
-    handler_types = [type(h) for h in logger.handlers]
+def test_configure_logging_handler_types(tmp_path):
+    """Test that both handler types are present."""
+    log_file = tmp_path / "test.log"
 
+    configure_logging(log_file=str(log_file))
+
+    root = logging.getLogger()
+    handler_types = [type(h) for h in root.handlers]
     assert logging.StreamHandler in handler_types
     assert logging.FileHandler in handler_types
 
 
-def test_get_logger_console_level_default():
-    """Test that the StreamHandler defaults to INFO level."""
-    logger = get_logger("test_console_default")
-    stream_handler = [h for h in logger.handlers if type(h) is logging.StreamHandler][0]
+def test_configure_logging_console_level_default(tmp_path):
+    """Test that console level defaults to INFO."""
+    log_file = tmp_path / "test.log"
 
+    configure_logging(log_file=str(log_file))
+
+    root = logging.getLogger()
+    stream_handler = [h for h in root.handlers if type(h) is logging.StreamHandler][0]
     assert stream_handler.level == logging.INFO
 
 
-def test_get_logger_console_level_custom():
-    """Test that the StreamHandler respects a custom console level."""
-    logger = get_logger("test_console_custom", console_level="WARNING")
-    stream_handler = [h for h in logger.handlers if type(h) is logging.StreamHandler][0]
+def test_configure_logging_console_level_custom(tmp_path):
+    """Test that a custom console level is respected."""
+    log_file = tmp_path / "test.log"
 
+    configure_logging(log_file=str(log_file), console_level="WARNING")
+
+    root = logging.getLogger()
+    stream_handler = [h for h in root.handlers if type(h) is logging.StreamHandler][0]
     assert stream_handler.level == logging.WARNING
 
 
-def test_get_logger_file_created(tmp_path):
-    """Test that the log file is created when the logger is used."""
+def test_configure_logging_file_is_created(tmp_path):
+    """Test that the log file is created when a message is logged."""
     log_file = tmp_path / "test.log"
-    logger = get_logger("test_file_creation", log_file=str(log_file))
-    logger.info("test message")
+
+    configure_logging(log_file=str(log_file))
+    logging.getLogger("test").info("hello")
 
     assert log_file.exists()
 
 
-def test_get_logger_no_duplicate_handlers():
-    """Test that calling get_logger twice does not add duplicate handlers."""
-    logger = get_logger("test_no_duplicates")
-    handler_count_first = len(logger.handlers)
-    get_logger("test_no_duplicates")
+def test_configure_logging_clears_previous_handlers(tmp_path):
+    """Test that reconfiguring replaces old handlers rather than appending."""
+    log_file = tmp_path / "test.log"
 
-    assert len(logger.handlers) == handler_count_first
+    configure_logging(log_file=str(log_file))
+    configure_logging(log_file=str(log_file))
+
+    root = logging.getLogger()
+    assert len(root.handlers) == 2
+
+
+def test_get_logger_returns_logger_instance():
+    """Test that get_logger returns a Logger."""
+    logger = get_logger("test_module")
+    assert isinstance(logger, logging.Logger)
