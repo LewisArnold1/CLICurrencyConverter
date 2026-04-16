@@ -6,6 +6,7 @@ import logging
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 logging.getLogger("requests").setLevel(logging.WARNING)
 
+
 def configure_logging(
     log_file: str = "currency_converter.log",
     console_level: str = "INFO",
@@ -14,10 +15,15 @@ def configure_logging(
     """
     Configure the root logger. Should be called once at application startup.
 
+    All loggers created via get_logger inherit from this configuration.
+    Calling this function again clears and replaces any existing handlers.
+
     Args:
-        log_file (str): Path to the log file.
-        console_level (str): Console handler level.
-        file_level (str): File handler level.
+        log_file (str): Path to the log file. Defaults to 'currency_converter.log'.
+        console_level (str): Console handler level. Must be one of DEBUG, INFO,
+            WARNING, ERROR, CRITICAL. Defaults to 'INFO'.
+        file_level (str): File handler level. Must be one of DEBUG, INFO,
+            WARNING, ERROR, CRITICAL. Defaults to 'DEBUG'.
     """
     root_logger = logging.getLogger()
     root_logger.setLevel("DEBUG")
