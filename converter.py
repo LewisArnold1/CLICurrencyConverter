@@ -7,7 +7,7 @@ import requests
 from src.api_client import fetch_rates
 from src.cli import parse_args
 from src.converter import convert_currency
-from src.logger_config import get_logger
+from src.logger_config import configure_logging, get_logger
 from src.rates_cache import load_rates
 
 
@@ -15,7 +15,8 @@ def main() -> None:
     """Run the currency converter based on command line arguments."""
     args = parse_args()
 
-    logger = get_logger(__name__, console_level=args.log_level)
+    configure_logging(console_level=args.log_level)
+    logger = get_logger(__name__)
 
     try:
         if args.mock:
