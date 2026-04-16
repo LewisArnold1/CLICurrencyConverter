@@ -1,3 +1,4 @@
+# pylint: disable=unidiomatic-typecheck
 """Tests for the logger configuration module."""
 
 import logging

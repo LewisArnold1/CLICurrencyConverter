@@ -1,4 +1,4 @@
-# pylint: disable=redefined-outer-name, unused-argument
+# pylint: disable=redefined-outer-name, unused-argument, too-few-public-methods
 """Tests for the API client module."""
 
 import pytest
