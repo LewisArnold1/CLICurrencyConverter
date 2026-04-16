@@ -41,6 +41,9 @@ def save_rates(data: dict, file_path: str = RATES_FILE) -> None:
     Args:
         data (dict): The exchange rate data to save.
         file_path (str): Path to the output file. Defaults to data/last_rates.json.
+
+    Raises:
+        OSError: If the file cannot be written (e.g. permission denied).
     """
     logger.debug("Saving rates to %s", file_path)
 

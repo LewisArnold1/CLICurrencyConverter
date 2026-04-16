@@ -12,7 +12,15 @@ from src.rates_cache import load_rates
 
 
 def main() -> None:
-    """Run the currency converter based on command line arguments."""
+    """
+    Run the currency converter based on command line arguments.
+
+    Parses CLI arguments, configures logging, fetches rates (live or cached),
+    performs the conversion, and prints the result.
+
+    Exits with code 1 if the cache file is missing in mock mode, if a currency
+    is unsupported, or if a network error occurs in live mode.
+    """
     args = parse_args()
 
     configure_logging(console_level=args.log_level)

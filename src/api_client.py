@@ -20,15 +20,14 @@ def fetch_rates() -> dict:
     Fetch the latest exchange rates from the API.
 
     Rates are returned with EUR as the base currency.
-    On success, the cached rates file is automatically updated.
+    On success, the cached rates file is automatically updated as a side effect.
 
     Returns:
-        dict: The API response containing exchange rate data.
+        dict: The full API response with keys: success, timestamp, base, date, rates.
 
     Raises:
-        ValueError: If the API key is not set.
-        requests.exceptions.RequestException: If the API request fails.
-        ValueError: If the API returns an unsuccessful response.
+        ValueError: If the API key is not set or the API returns an unsuccessful response.
+        requests.exceptions.RequestException: If the API request fails (network or HTTP error).
     """
     api_key = os.environ.get("EXCHANGE_RATE_API_KEY")
 
